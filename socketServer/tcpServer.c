@@ -81,15 +81,26 @@ MYSQL *connect_db()
         exit(EXIT_FAILURE);
     }
 
-    // Azure MySQL에 연결, 나중에 서버 관리자 로그인 pw를 가리는 방법을 찾아보자...
-    if (mysql_real_connect(conn, "hoshi03mysql1.mysql.database.azure.com", "hoshi03", "chanho03!", "messages", 3306, NULL, 0) == NULL)
+    const char* host = getenv("DB_HOST");
+    const char* user = getenv("DB_USER");
+    const char* password = getenv("DB_PASS");
+    const char* dbname = getenv("DB_NAME");
+    int port = atoi(getenv("DB_PORT"));
+
+    // 환경 변수가 제대로 설정되지 않은 경우
+    if (host == NULL || user == NULL || password == NULL || dbname == NULL)
+    {
+        fprintf(stderr, "One or more environment variables are missing.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Azure MySQL에 연결
+    if (mysql_real_connect(conn, host, user, password, dbname, port, NULL, 0) == NULL)
     {
         fprintf(stderr, "mysql_real_connect() failed. Error: %s\n", mysql_error(conn));
         mysql_close(conn);
         exit(EXIT_FAILURE);
     }
-
-    return conn;
 }
 
 // MySQL에 메시지 저장
