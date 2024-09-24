@@ -20,8 +20,6 @@ int client_sockets[MAX_CLIENTS];
 void daemonize()
 {
     pid_t pid, sid;
-
-    // 첫 번째 포크: 부모 프로세스를 종료하고 자식 프로세스를 남김
     pid = fork();
     if (pid < 0)
     {
@@ -29,17 +27,17 @@ void daemonize()
     }
     if (pid > 0)
     {
-        exit(EXIT_SUCCESS); // 부모 프로세스 종료
+        exit(EXIT_SUCCESS); 
     }
 
-    // 자식 프로세스에서 세션 리더가 되도록 설정
+  
     sid = setsid();
     if (sid < 0)
     {
         exit(EXIT_FAILURE);
     }
 
-    // 두 번째 포크: 세션 리더가 아닌 프로세스에서 실행
+
     pid = fork();
     if (pid < 0)
     {
@@ -47,7 +45,7 @@ void daemonize()
     }
     if (pid > 0)
     {
-        exit(EXIT_SUCCESS); // 첫 번째 자식 프로세스 종료
+        exit(EXIT_SUCCESS); 
     }
 
     // 작업 디렉토리를 루트로 변경
@@ -56,15 +54,13 @@ void daemonize()
         exit(EXIT_FAILURE);
     }
 
-    // 파일 생성 마스크를 0으로 설정
     umask(0);
 
-    // 표준 파일 디스크립터를 닫음
+
     close(STDIN_FILENO);
     close(STDOUT_FILENO);
     close(STDERR_FILENO);
 
-    // 로그를 syslog로 전송
     openlog("chat_server", LOG_PID, LOG_DAEMON);
     syslog(LOG_NOTICE, "Daemon started");
 }
@@ -109,14 +105,14 @@ void save_message_to_db(char *nickname, char *text)
     // printf("start save msg\n");
     MYSQL *conn = connect_db();
 
-    // nickname과 text를 SQL 쿼리에서 안전하게 사용하기 위해 특수 문자를 처리
+
     char escaped_nickname[64];
-    char escaped_text[BUF_SIZE]; // 특수 문자 이스케이프 때문에 크기를 두 배로
+    char escaped_text[BUF_SIZE]; 
 
     mysql_real_escape_string(conn, escaped_nickname, nickname, strlen(nickname));
     mysql_real_escape_string(conn, escaped_text, text, strlen(text));
 
-    char query[BUF_SIZE + 128]; // 쿼리 버퍼
+    char query[BUF_SIZE + 128];
     snprintf(query, sizeof(query), "INSERT INTO messages (nickname, text) VALUES ('%s', '%s')",
              escaped_nickname, escaped_text);
 
@@ -142,18 +138,18 @@ char *check_login(char *id, char *pw)
     {
         fprintf(stderr, "Login check failed. Error: %s\n", mysql_error(conn));
         mysql_close(conn);
-        return "login_fail"; // 로그인 실패
+        return "login_fail"; 
     }
     char *nickname;
     res = mysql_store_result(conn);
     if ((row = mysql_fetch_row(res)) != NULL)
     {
         // 로그인 성공, 닉네임 반환
-        char *nickname = strdup(row[0]); // 닉네임 동적 할당
+        char *nickname = strdup(row[0]); 
         printf("Login success! Nickname: %s\n", nickname);
         mysql_free_result(res);
         mysql_close(conn);
-        return nickname; // 성공 시 닉네임 반환
+        return nickname; 
     }
 
     mysql_free_result(res);
@@ -173,11 +169,11 @@ int register_user(char *id, char *pw, char *nickname)
     {
         fprintf(stderr, "Register failed. Error: %s\n", mysql_error(conn));
         mysql_close(conn);
-        return 0; // 회원가입 실패
+        return 0;
     }
 
     mysql_close(conn);
-    return 1; // 회원가입 성공
+    return 1; 
 }
 
 void handle_client_signal(int signum)
@@ -232,7 +228,7 @@ void handle_client_signal(int signum)
                 {
                     // 메시지를 sender: nickname text 형식으로 받음
                     char nickname[30], text[BUF_SIZE], temp[30];
-                    sscanf(buffer + 7, "%s %s %s", nickname, temp, text); // %[^\n]는 공백을 포함한 문자열을 받음
+                    sscanf(buffer + 7, "%s %s %s", nickname, temp, text); 
 
                     // 클라이언트에게 메시지를 전송
                     for (int j = 0; j < MAX_CLIENTS; j++)
