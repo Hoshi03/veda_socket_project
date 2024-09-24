@@ -32,8 +32,6 @@ int main()
     server_addr.sin_family = AF_INET;
     //내부망
     // server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
-
-    //
     server_addr.sin_addr.s_addr = inet_addr("192.168.0.98");
     server_addr.sin_port = htons(PORT);
 
@@ -60,7 +58,6 @@ int main()
         printf("1 : 회원가입 2: 로그인\n");
         if (fgets(buffer, sizeof(buffer), stdin) != NULL)
         {
-            // 개행 문자 제거
             buffer[strcspn(buffer, "\n")] = '\0';
             idx = atoi(buffer);
         }
@@ -122,7 +119,7 @@ int main()
             fgets(pw, sizeof(pw), stdin);
             pw[strlen(pw) - 1] = 0;
 
-            // "login : id pw" 형태로 로그인 쿼리를 만드어서 서버에 전송
+            // "login : id pw" 형태로 로그인 쿼리를 만들어서 서버에 전송
             strcat(loginQuery, id);
             strcat(loginQuery, " ");
             strcat(loginQuery, pw);
